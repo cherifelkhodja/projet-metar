@@ -2,7 +2,6 @@
 name = "metar-collector"
 version = "1.0.0"
 description = "METAR data collector service with scheduled fetching and parsing"
-readme = "README.md"
 requires-python = ">=3.12"
 license = {text = "MIT"}
 authors = [
