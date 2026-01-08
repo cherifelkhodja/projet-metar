@@ -1,0 +1,22 @@
+# Configuration des aéroports à surveiller
+airports:
+  - icao: LFPG  # Paris Charles de Gaulle
+    name: "Paris Charles de Gaulle Airport"
+  - icao: LFPO  # Paris Orly
+    name: "Paris Orly Airport"
+  - icao: LFBO  # Toulouse-Blagnac
+    name: "Toulouse-Blagnac Airport"
+  - icao: LFML  # Marseille Provence
+    name: "Marseille Provence Airport"
+  - icao: LFLL  # Lyon Saint-Exupéry
+    name: "Lyon Saint-Exupéry Airport"
+  - icao: EBBR  # Brussels Airport
+    name: "Brussels Airport"
+  - icao: LSZH  # Zurich Airport
+    name: "Zurich Airport"
+  - icao: EGLL  # London Heathrow
+    name: "London Heathrow Airport"
+  - icao: KJFK  # New York JFK
+    name: "John F. Kennedy International Airport"
+  - icao: KLAX  # Los Angeles International
+    name: "Los Angeles International Airport"

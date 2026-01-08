@@ -1,0 +1,106 @@
+/* Custom styles for METAR Collector Dashboard */
+
+/* Flight category colors */
+.flight-vfr {
+    background-color: #10B981;
+    color: white;
+}
+
+.flight-mvfr {
+    background-color: #3B82F6;
+    color: white;
+}
+
+.flight-ifr {
+    background-color: #EF4444;
+    color: white;
+}
+
+.flight-lifr {
+    background-color: #8B5CF6;
+    color: white;
+}
+
+/* Table styling */
+table {
+    border-collapse: collapse;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #a1a1a1;
+}
+
+/* Loading spinner */
+.spinner {
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid #3B82F6;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Transition for tab content */
+[x-cloak] {
+    display: none !important;
+}
+
+/* Hover effects */
+.hover-lift {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.hover-lift:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+/* Input focus styles */
+input:focus, select:focus {
+    outline: none;
+    ring: 2px;
+    ring-color: #3B82F6;
+    border-color: #3B82F6;
+}
+
+/* Monospace font for METAR data */
+.font-mono {
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .container {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+
+    table {
+        font-size: 0.875rem;
+    }
+
+    .hide-mobile {
+        display: none;
+    }
+}

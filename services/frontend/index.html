@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>METAR Collector Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <div x-data="dashboard()" x-init="init()">
+        <!-- Header -->
+        <header class="bg-blue-600 text-white shadow-lg">
+            <div class="container mx-auto px-4 py-4">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-4">
+                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"/>
+                        </svg>
+                        <h1 class="text-2xl font-bold">METAR Collector</h1>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <span class="text-sm" x-text="currentTime"></span>
+                        <span class="px-3 py-1 rounded-full text-sm"
+                              :class="healthStatus === 'healthy' ? 'bg-green-500' : 'bg-red-500'">
+                            <span x-text="healthStatus"></span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="container mx-auto px-4 py-6">
+            <!-- Stats Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                <div class="bg-white rounded-lg shadow p-4">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-500 text-sm">Active Airports</p>
+                            <p class="text-2xl font-bold" x-text="metrics.active_airports || 0"></p>
+                        </div>
+                        <div class="bg-blue-100 p-3 rounded-full">
+                            <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg shadow p-4">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-500 text-sm">Total Observations</p>
+                            <p class="text-2xl font-bold" x-text="formatNumber(metrics.total_observations || 0)"></p>
+                        </div>
+                        <div class="bg-green-100 p-3 rounded-full">
+                            <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg shadow p-4">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-500 text-sm">Collection Runs</p>
+                            <p class="text-2xl font-bold" x-text="metrics.total_collections || 0"></p>
+                        </div>
+                        <div class="bg-yellow-100 p-3 rounded-full">
+                            <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg shadow p-4">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-500 text-sm">Last Collection</p>
+                            <p class="text-sm font-medium" x-text="lastCollectionStatus"></p>
+                        </div>
+                        <div class="p-3 rounded-full"
+                             :class="collectionStatus?.last_collection?.status === 'success' ? 'bg-green-100' : 'bg-red-100'">
+                            <svg class="w-6 h-6"
+                                 :class="collectionStatus?.last_collection?.status === 'success' ? 'text-green-600' : 'text-red-600'"
+                                 fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabs -->
+            <div class="mb-6">
+                <div class="border-b border-gray-200">
+                    <nav class="-mb-px flex space-x-8">
+                        <button @click="activeTab = 'airports'"
+                                :class="activeTab === 'airports' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+                                class="py-2 px-1 border-b-2 font-medium text-sm">
+                            Airports
+                        </button>
+                        <button @click="activeTab = 'history'"
+                                :class="activeTab === 'history' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+                                class="py-2 px-1 border-b-2 font-medium text-sm">
+                            History
+                        </button>
+                        <button @click="activeTab = 'add'"
+                                :class="activeTab === 'add' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+                                class="py-2 px-1 border-b-2 font-medium text-sm">
+                            Add Airport
+                        </button>
+                        <button @click="activeTab = 'export'"
+                                :class="activeTab === 'export' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+                                class="py-2 px-1 border-b-2 font-medium text-sm">
+                            Export
+                        </button>
+                    </nav>
+                </div>
+            </div>
+
+            <!-- Airports Tab -->
+            <div x-show="activeTab === 'airports'" class="bg-white rounded-lg shadow">
+                <div class="p-4 border-b border-gray-200">
+                    <h2 class="text-lg font-semibold">Monitored Airports</h2>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ICAO</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Latest METAR</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Flight Cat.</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Time</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <template x-for="airport in airports" :key="airport.icao_code">
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="font-mono font-bold text-blue-600" x-text="airport.icao_code"></span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" x-text="airport.name || '-'"></td>
+                                    <td class="px-6 py-4">
+                                        <div class="text-xs font-mono text-gray-600 max-w-md truncate"
+                                             x-text="getLatestMetar(airport.icao_code)?.raw_metar || 'No data'">
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="px-2 py-1 text-xs font-semibold rounded-full"
+                                              :class="getFlightCategoryClass(getLatestMetar(airport.icao_code)?.flight_category)"
+                                              x-text="getLatestMetar(airport.icao_code)?.flight_category || '-'">
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"
+                                        x-text="formatTime(getLatestMetar(airport.icao_code)?.observation_time)">
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                        <button @click="viewHistory(airport.icao_code)"
+                                                class="text-blue-600 hover:text-blue-900 mr-3">View</button>
+                                        <button @click="deleteAirport(airport.icao_code)"
+                                                class="text-red-600 hover:text-red-900">Remove</button>
+                                    </td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+                </div>
+                <div x-show="airports.length === 0" class="p-8 text-center text-gray-500">
+                    No airports configured. Add some airports to start collecting METAR data.
+                </div>
+            </div>
+
+            <!-- History Tab -->
+            <div x-show="activeTab === 'history'" class="bg-white rounded-lg shadow">
+                <div class="p-4 border-b border-gray-200 flex items-center justify-between">
+                    <h2 class="text-lg font-semibold">METAR History</h2>
+                    <div class="flex items-center space-x-4">
+                        <select x-model="selectedAirport" @change="loadHistory()"
+                                class="border border-gray-300 rounded-md px-3 py-2 text-sm">
+                            <option value="">Select Airport</option>
+                            <template x-for="airport in airports" :key="airport.icao_code">
+                                <option :value="airport.icao_code" x-text="airport.icao_code + ' - ' + (airport.name || 'Unknown')"></option>
+                            </template>
+                        </select>
+                    </div>
+                </div>
+                <div x-show="selectedAirport && history.length > 0" class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Time (UTC)</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Raw METAR</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Wind</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Visibility</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Ceiling</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Temp</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Category</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <template x-for="obs in history" :key="obs.id">
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm" x-text="formatTime(obs.observation_time)"></td>
+                                    <td class="px-6 py-4">
+                                        <div class="text-xs font-mono text-gray-600 max-w-lg" x-text="obs.raw_metar"></div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm" x-text="formatWind(obs)"></td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm" x-text="formatVisibility(obs)"></td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm" x-text="obs.ceiling_ft ? obs.ceiling_ft + ' ft' : 'CLR'"></td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm" x-text="obs.temperature_c !== null ? obs.temperature_c + '°C' : '-'"></td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="px-2 py-1 text-xs font-semibold rounded-full"
+                                              :class="getFlightCategoryClass(obs.flight_category)"
+                                              x-text="obs.flight_category || '-'">
+                                        </span>
+                                    </td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+                </div>
+                <div x-show="selectedAirport && history.length === 0" class="p-8 text-center text-gray-500">
+                    No history available for this airport.
+                </div>
+                <div x-show="!selectedAirport" class="p-8 text-center text-gray-500">
+                    Select an airport to view its METAR history.
+                </div>
+                <!-- Pagination -->
+                <div x-show="historyTotal > historyPerPage" class="px-6 py-4 border-t border-gray-200 flex items-center justify-between">
+                    <div class="text-sm text-gray-500">
+                        Showing <span x-text="((historyPage - 1) * historyPerPage) + 1"></span> to
+                        <span x-text="Math.min(historyPage * historyPerPage, historyTotal)"></span> of
+                        <span x-text="historyTotal"></span> results
+                    </div>
+                    <div class="flex space-x-2">
+                        <button @click="historyPage--; loadHistory()" :disabled="historyPage <= 1"
+                                class="px-3 py-1 border rounded text-sm disabled:opacity-50">Previous</button>
+                        <button @click="historyPage++; loadHistory()" :disabled="historyPage >= Math.ceil(historyTotal / historyPerPage)"
+                                class="px-3 py-1 border rounded text-sm disabled:opacity-50">Next</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Add Airport Tab -->
+            <div x-show="activeTab === 'add'" class="bg-white rounded-lg shadow p-6">
+                <h2 class="text-lg font-semibold mb-4">Add New Airport</h2>
+                <form @submit.prevent="addAirport()" class="max-w-md">
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">ICAO Code *</label>
+                        <input type="text" x-model="newAirport.icao_code"
+                               maxlength="4" placeholder="LFPG"
+                               class="w-full border border-gray-300 rounded-md px-3 py-2 uppercase"
+                               required>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Name</label>
+                        <input type="text" x-model="newAirport.name"
+                               placeholder="Paris Charles de Gaulle"
+                               class="w-full border border-gray-300 rounded-md px-3 py-2">
+                    </div>
+                    <div class="grid grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Latitude</label>
+                            <input type="number" x-model="newAirport.latitude" step="0.000001"
+                                   placeholder="49.0097"
+                                   class="w-full border border-gray-300 rounded-md px-3 py-2">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Longitude</label>
+                            <input type="number" x-model="newAirport.longitude" step="0.000001"
+                                   placeholder="2.5478"
+                                   class="w-full border border-gray-300 rounded-md px-3 py-2">
+                        </div>
+                    </div>
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Elevation (ft)</label>
+                        <input type="number" x-model="newAirport.elevation_ft"
+                               placeholder="392"
+                               class="w-full border border-gray-300 rounded-md px-3 py-2">
+                    </div>
+                    <button type="submit"
+                            class="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition">
+                        Add Airport
+                    </button>
+                </form>
+            </div>
+
+            <!-- Export Tab -->
+            <div x-show="activeTab === 'export'" class="bg-white rounded-lg shadow p-6">
+                <h2 class="text-lg font-semibold mb-4">Export Data</h2>
+                <form @submit.prevent="exportData()" class="max-w-md">
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Airport (optional)</label>
+                        <select x-model="exportParams.icao" class="w-full border border-gray-300 rounded-md px-3 py-2">
+                            <option value="">All Airports</option>
+                            <template x-for="airport in airports" :key="airport.icao_code">
+                                <option :value="airport.icao_code" x-text="airport.icao_code"></option>
+                            </template>
+                        </select>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
+                            <input type="date" x-model="exportParams.start_date"
+                                   class="w-full border border-gray-300 rounded-md px-3 py-2">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">End Date</label>
+                            <input type="date" x-model="exportParams.end_date"
+                                   class="w-full border border-gray-300 rounded-md px-3 py-2">
+                        </div>
+                    </div>
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Format</label>
+                        <div class="flex space-x-4">
+                            <label class="flex items-center">
+                                <input type="radio" x-model="exportParams.format" value="csv" class="mr-2">
+                                CSV
+                            </label>
+                            <label class="flex items-center">
+                                <input type="radio" x-model="exportParams.format" value="json" class="mr-2">
+                                JSON
+                            </label>
+                        </div>
+                    </div>
+                    <button type="submit"
+                            class="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 transition">
+                        Download Export
+                    </button>
+                </form>
+            </div>
+        </main>
+
+        <!-- Toast Notifications -->
+        <div class="fixed bottom-4 right-4 space-y-2">
+            <template x-for="toast in toasts" :key="toast.id">
+                <div x-show="toast.visible"
+                     x-transition:enter="transition ease-out duration-300"
+                     x-transition:enter-start="opacity-0 transform translate-x-full"
+                     x-transition:enter-end="opacity-100 transform translate-x-0"
+                     x-transition:leave="transition ease-in duration-200"
+                     x-transition:leave-start="opacity-100 transform translate-x-0"
+                     x-transition:leave-end="opacity-0 transform translate-x-full"
+                     :class="toast.type === 'error' ? 'bg-red-500' : 'bg-green-500'"
+                     class="text-white px-6 py-3 rounded-lg shadow-lg">
+                    <span x-text="toast.message"></span>
+                </div>
+            </template>
+        </div>
+    </div>
+
+    <script src="/js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,89 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: metar-postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-metar_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-metar_password}
+      POSTGRES_DB: ${POSTGRES_DB:-metar_db}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./shared/database/migrations/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-metar_user} -d ${POSTGRES_DB:-metar_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - metar-network
+
+  collector:
+    build:
+      context: ./services/collector
+      dockerfile: Dockerfile
+    container_name: metar-collector
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      - DATABASE_URL=${DATABASE_URL:-postgresql+asyncpg://metar_user:metar_password@postgres:5432/metar_db}
+      - COLLECTION_INTERVAL_MINUTES=${COLLECTION_INTERVAL_MINUTES:-60}
+      - COLLECTION_TIMEOUT_SECONDS=${COLLECTION_TIMEOUT_SECONDS:-30}
+      - COLLECTION_RETRY_ATTEMPTS=${COLLECTION_RETRY_ATTEMPTS:-3}
+      - COLLECTION_RETRY_DELAY_SECONDS=${COLLECTION_RETRY_DELAY_SECONDS:-5}
+      - NOAA_AWC_BASE_URL=${NOAA_AWC_BASE_URL:-https://aviationweather.gov/api/data/metar}
+      - CHECKWX_API_KEY=${CHECKWX_API_KEY:-}
+      - CHECKWX_BASE_URL=${CHECKWX_BASE_URL:-https://api.checkwx.com/metar}
+      - PRIMARY_SOURCE=${PRIMARY_SOURCE:-noaa_awc}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - LOG_FORMAT=${LOG_FORMAT:-json}
+    volumes:
+      - ./config:/app/config:ro
+    restart: unless-stopped
+    networks:
+      - metar-network
+
+  api:
+    build:
+      context: ./services/api
+      dockerfile: Dockerfile
+    container_name: metar-api
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      - DATABASE_URL=${DATABASE_URL:-postgresql+asyncpg://metar_user:metar_password@postgres:5432/metar_db}
+      - API_HOST=${API_HOST:-0.0.0.0}
+      - API_PORT=${API_PORT:-8000}
+      - API_WORKERS=${API_WORKERS:-2}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - LOG_FORMAT=${LOG_FORMAT:-json}
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+    networks:
+      - metar-network
+
+  frontend:
+    build:
+      context: ./services/frontend
+      dockerfile: Dockerfile
+    container_name: metar-frontend
+    depends_on:
+      - api
+    ports:
+      - "80:80"
+    restart: unless-stopped
+    networks:
+      - metar-network
+
+volumes:
+  postgres_data:
+
+networks:
+  metar-network:
+    driver: bridge

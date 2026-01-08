@@ -1,0 +1,1 @@
+"""METAR Collector Service."""
