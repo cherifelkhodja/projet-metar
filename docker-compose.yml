@@ -76,7 +76,7 @@ services:
     depends_on:
       - api
     ports:
-      - "80:80"
+      - "8882:80"
     restart: unless-stopped
     networks:
       - metar-network

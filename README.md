@@ -12,7 +12,7 @@ Application de collecte automatique de données METAR (Meteorological Aerodrome 
 │  ┌──────────────┐     ┌──────────────┐     ┌──────────────┐    │
 │  │   Frontend   │────▶│     API      │────▶│  PostgreSQL  │    │
 │  │   (nginx)    │     │  (FastAPI)   │     │              │    │
-│  │   :80        │     │   :8000      │     │    :5432     │    │
+│  │   :8882      │     │   :8000      │     │    :5432     │    │
 │  └──────────────┘     └──────────────┘     └──────────────┘    │
 │                                                    ▲            │
 │                                                    │            │
@@ -112,7 +112,7 @@ docker-compose up -d
 
 | Service | URL | Description |
 |---------|-----|-------------|
-| Dashboard | http://localhost | Interface web |
+| Dashboard | http://localhost:8882 | Interface web |
 | API Docs | http://localhost:8000/api/docs | Documentation Swagger |
 | API ReDoc | http://localhost:8000/api/redoc | Documentation ReDoc |
 
