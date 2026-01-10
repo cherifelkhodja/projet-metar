@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="fr" x-data="{ darkMode: localStorage.getItem('darkMode') !== 'false' }" :class="{ 'dark': darkMode }">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,49 +11,100 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <script>
         tailwind.config = {
+            darkMode: 'class',
             theme: {
                 extend: {
                     fontFamily: {
                         sans: ['Inter', 'sans-serif'],
                         mono: ['JetBrains Mono', 'monospace'],
-                    },
-                    colors: {
-                        dark: {
-                            900: '#0a0a0f',
-                            800: '#12121a',
-                            700: '#1a1a24',
-                            600: '#24242f',
-                            500: '#2f2f3a',
-                        }
                     }
                 }
             }
         }
     </script>
     <style>
-        body {
+        /* Dark mode */
+        .dark body {
             background: linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 50%, #16213e 100%);
         }
-        .glass {
+        .dark .glass {
             background: rgba(255, 255, 255, 0.03);
             backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.05);
         }
-        .glass-card {
+        .dark .glass-card {
             background: rgba(255, 255, 255, 0.02);
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.05);
-            transition: all 0.3s ease;
         }
-        .glass-card:hover {
+        .dark .glass-card:hover {
             background: rgba(255, 255, 255, 0.05);
             border-color: rgba(255, 255, 255, 0.1);
-            transform: translateY(-2px);
         }
-        .flight-vfr { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; }
-        .flight-mvfr { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; }
-        .flight-ifr { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: white; }
-        .flight-lifr { background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%); color: white; }
+        .dark .stat-card {
+            background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%);
+        }
+        .dark .glow {
+            box-shadow: 0 0 30px rgba(59, 130, 246, 0.15);
+        }
+        .dark .table-row:hover {
+            background: rgba(255, 255, 255, 0.02);
+        }
+        .dark ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        .dark ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .dark input, .dark select {
+            background: rgba(255, 255, 255, 0.05) !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            color: white !important;
+        }
+        .dark input::placeholder {
+            color: rgba(255, 255, 255, 0.3);
+        }
+        .dark .nav-item:hover {
+            background: rgba(59, 130, 246, 0.1);
+        }
+        .dark .nav-item.active {
+            background: rgba(59, 130, 246, 0.2);
+            border-right: 3px solid #3b82f6;
+        }
+
+        /* Light mode */
+        body {
+            background: linear-gradient(135deg, #f0f4f8 0%, #e2e8f0 50%, #cbd5e1 100%);
+            transition: background 0.3s ease;
+        }
+        .glass {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+        .glass-card:hover {
+            background: rgba(255, 255, 255, 0.95);
+            border-color: rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        .stat-card {
+            background: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.7) 100%);
+        }
+        .glow {
+            box-shadow: 0 4px 20px rgba(59, 130, 246, 0.1);
+        }
+        .table-row:hover {
+            background: rgba(59, 130, 246, 0.05);
+        }
         .nav-item {
             transition: all 0.2s ease;
         }
@@ -61,18 +112,30 @@
             background: rgba(59, 130, 246, 0.1);
         }
         .nav-item.active {
-            background: rgba(59, 130, 246, 0.2);
+            background: rgba(59, 130, 246, 0.15);
             border-right: 3px solid #3b82f6;
         }
-        .stat-card {
-            background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%);
+        input, select {
+            background: white !important;
+            border: 1px solid #e2e8f0 !important;
+            color: #1e293b !important;
+            transition: all 0.2s ease;
         }
-        .glow {
-            box-shadow: 0 0 30px rgba(59, 130, 246, 0.15);
+        input:focus, select:focus {
+            outline: none;
+            border-color: rgba(59, 130, 246, 0.5) !important;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
         }
-        .table-row:hover {
-            background: rgba(255, 255, 255, 0.02);
+        input::placeholder {
+            color: #94a3b8;
         }
+
+        /* Common styles */
+        .flight-vfr { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; }
+        .flight-mvfr { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; }
+        .flight-ifr { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: white; }
+        .flight-lifr { background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%); color: white; }
+
         ::-webkit-scrollbar {
             width: 6px;
             height: 6px;
@@ -81,11 +144,11 @@
             background: transparent;
         }
         ::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(0, 0, 0, 0.1);
             border-radius: 3px;
         }
         ::-webkit-scrollbar-thumb:hover {
-            background: rgba(255, 255, 255, 0.2);
+            background: rgba(0, 0, 0, 0.2);
         }
         .pulse-dot {
             animation: pulse 2s infinite;
@@ -94,22 +157,61 @@
             0%, 100% { opacity: 1; }
             50% { opacity: 0.5; }
         }
-        input, select {
-            background: rgba(255, 255, 255, 0.05) !important;
-            border: 1px solid rgba(255, 255, 255, 0.1) !important;
-            color: white !important;
+
+        /* Theme toggle switch */
+        .theme-toggle {
+            width: 56px;
+            height: 28px;
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            border-radius: 14px;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s ease;
         }
-        input:focus, select:focus {
-            outline: none;
-            border-color: rgba(59, 130, 246, 0.5) !important;
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        .dark .theme-toggle {
+            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
         }
-        input::placeholder {
-            color: rgba(255, 255, 255, 0.3);
+        .theme-toggle::before {
+            content: '';
+            position: absolute;
+            width: 22px;
+            height: 22px;
+            background: white;
+            border-radius: 50%;
+            top: 3px;
+            left: 3px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        .dark .theme-toggle::before {
+            transform: translateX(28px);
+        }
+        .theme-toggle .sun-icon,
+        .theme-toggle .moon-icon {
+            position: absolute;
+            width: 14px;
+            height: 14px;
+            top: 7px;
+            transition: all 0.3s ease;
+        }
+        .theme-toggle .sun-icon {
+            left: 7px;
+            opacity: 1;
+        }
+        .theme-toggle .moon-icon {
+            right: 7px;
+            opacity: 0.5;
+        }
+        .dark .theme-toggle .sun-icon {
+            opacity: 0.5;
+        }
+        .dark .theme-toggle .moon-icon {
+            opacity: 1;
         }
     </style>
 </head>
-<body class="min-h-screen text-gray-200 font-sans">
+<body class="min-h-screen font-sans transition-colors duration-300"
+      :class="darkMode ? 'text-gray-200' : 'text-gray-700'">
     <div x-data="dashboard()" x-init="init()" class="flex min-h-screen">
         <!-- Sidebar -->
         <aside class="w-64 glass fixed h-full z-10">
@@ -123,9 +225,24 @@
                         </svg>
                     </div>
                     <div>
-                        <h1 class="text-lg font-bold text-white">METAR</h1>
-                        <p class="text-xs text-gray-400">Collector v1.0</p>
+                        <h1 class="text-lg font-bold" :class="darkMode ? 'text-white' : 'text-gray-800'">METAR</h1>
+                        <p class="text-xs" :class="darkMode ? 'text-gray-400' : 'text-gray-500'">Collector v1.0</p>
                     </div>
+                </div>
+
+                <!-- Theme Toggle -->
+                <div class="mb-6 flex items-center justify-between px-2">
+                    <span class="text-sm" :class="darkMode ? 'text-gray-400' : 'text-gray-600'">Theme</span>
+                    <button @click="darkMode = !darkMode; localStorage.setItem('darkMode', darkMode)"
+                            class="theme-toggle"
+                            :aria-label="darkMode ? 'Switch to light mode' : 'Switch to dark mode'">
+                        <svg class="sun-icon text-white" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clip-rule="evenodd"/>
+                        </svg>
+                        <svg class="moon-icon text-white" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"/>
+                        </svg>
+                    </button>
                 </div>
 
                 <!-- Navigation -->
@@ -133,34 +250,34 @@
                     <button @click="activeTab = 'airports'"
                             :class="activeTab === 'airports' ? 'active' : ''"
                             class="nav-item w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-sm">
-                        <svg class="w-5 h-5" :class="activeTab === 'airports' ? 'text-blue-400' : 'text-gray-400'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-5 h-5" :class="activeTab === 'airports' ? 'text-blue-500' : (darkMode ? 'text-gray-400' : 'text-gray-500')" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
                         </svg>
-                        <span :class="activeTab === 'airports' ? 'text-white font-medium' : 'text-gray-400'">Airports</span>
+                        <span :class="activeTab === 'airports' ? (darkMode ? 'text-white font-medium' : 'text-blue-600 font-medium') : (darkMode ? 'text-gray-400' : 'text-gray-600')">Airports</span>
                     </button>
                     <button @click="activeTab = 'history'"
                             :class="activeTab === 'history' ? 'active' : ''"
                             class="nav-item w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-sm">
-                        <svg class="w-5 h-5" :class="activeTab === 'history' ? 'text-blue-400' : 'text-gray-400'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-5 h-5" :class="activeTab === 'history' ? 'text-blue-500' : (darkMode ? 'text-gray-400' : 'text-gray-500')" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
                         </svg>
-                        <span :class="activeTab === 'history' ? 'text-white font-medium' : 'text-gray-400'">History</span>
+                        <span :class="activeTab === 'history' ? (darkMode ? 'text-white font-medium' : 'text-blue-600 font-medium') : (darkMode ? 'text-gray-400' : 'text-gray-600')">History</span>
                     </button>
                     <button @click="activeTab = 'add'"
                             :class="activeTab === 'add' ? 'active' : ''"
                             class="nav-item w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-sm">
-                        <svg class="w-5 h-5" :class="activeTab === 'add' ? 'text-blue-400' : 'text-gray-400'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-5 h-5" :class="activeTab === 'add' ? 'text-blue-500' : (darkMode ? 'text-gray-400' : 'text-gray-500')" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
                         </svg>
-                        <span :class="activeTab === 'add' ? 'text-white font-medium' : 'text-gray-400'">Add Airport</span>
+                        <span :class="activeTab === 'add' ? (darkMode ? 'text-white font-medium' : 'text-blue-600 font-medium') : (darkMode ? 'text-gray-400' : 'text-gray-600')">Add Airport</span>
                     </button>
                     <button @click="activeTab = 'export'"
                             :class="activeTab === 'export' ? 'active' : ''"
                             class="nav-item w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-sm">
-                        <svg class="w-5 h-5" :class="activeTab === 'export' ? 'text-blue-400' : 'text-gray-400'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-5 h-5" :class="activeTab === 'export' ? 'text-blue-500' : (darkMode ? 'text-gray-400' : 'text-gray-500')" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
                         </svg>
-                        <span :class="activeTab === 'export' ? 'text-white font-medium' : 'text-gray-400'">Export</span>
+                        <span :class="activeTab === 'export' ? (darkMode ? 'text-white font-medium' : 'text-blue-600 font-medium') : (darkMode ? 'text-gray-400' : 'text-gray-600')">Export</span>
                     </button>
                 </nav>
             </div>
@@ -169,15 +286,15 @@
             <div class="absolute bottom-0 left-0 right-0 p-6">
                 <div class="glass-card rounded-xl p-4">
                     <div class="flex items-center justify-between mb-3">
-                        <span class="text-xs text-gray-400">System Status</span>
+                        <span class="text-xs" :class="darkMode ? 'text-gray-400' : 'text-gray-500'">System Status</span>
                         <span class="flex items-center space-x-1">
                             <span class="w-2 h-2 rounded-full pulse-dot"
-                                  :class="healthStatus === 'healthy' ? 'bg-green-400' : 'bg-red-400'"></span>
-                            <span class="text-xs" :class="healthStatus === 'healthy' ? 'text-green-400' : 'text-red-400'"
+                                  :class="healthStatus === 'healthy' ? 'bg-green-500' : 'bg-red-500'"></span>
+                            <span class="text-xs" :class="healthStatus === 'healthy' ? 'text-green-500' : 'text-red-500'"
                                   x-text="healthStatus"></span>
                         </span>
                     </div>
-                    <p class="text-xs text-gray-500 font-mono" x-text="currentTime"></p>
+                    <p class="text-xs font-mono" :class="darkMode ? 'text-gray-500' : 'text-gray-400'" x-text="currentTime"></p>
                 </div>
             </div>
         </aside>
@@ -189,11 +306,11 @@
                 <div class="stat-card glass-card rounded-2xl p-6">
                     <div class="flex items-center justify-between">
                         <div>
-                            <p class="text-gray-400 text-sm mb-1">Active Airports</p>
-                            <p class="text-3xl font-bold text-white" x-text="metrics.active_airports || 0"></p>
+                            <p class="text-sm mb-1" :class="darkMode ? 'text-gray-400' : 'text-gray-500'">Active Airports</p>
+                            <p class="text-3xl font-bold" :class="darkMode ? 'text-white' : 'text-gray-800'" x-text="metrics.active_airports || 0"></p>
                         </div>
                         <div class="w-12 h-12 rounded-xl bg-blue-500/20 flex items-center justify-center">
-                            <svg class="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
                             </svg>
                         </div>
@@ -202,11 +319,11 @@
                 <div class="stat-card glass-card rounded-2xl p-6">
                     <div class="flex items-center justify-between">
                         <div>
-                            <p class="text-gray-400 text-sm mb-1">Observations</p>
-                            <p class="text-3xl font-bold text-white" x-text="formatNumber(metrics.total_observations || 0)"></p>
+                            <p class="text-sm mb-1" :class="darkMode ? 'text-gray-400' : 'text-gray-500'">Observations</p>
+                            <p class="text-3xl font-bold" :class="darkMode ? 'text-white' : 'text-gray-800'" x-text="formatNumber(metrics.total_observations || 0)"></p>
                         </div>
                         <div class="w-12 h-12 rounded-xl bg-green-500/20 flex items-center justify-center">
-                            <svg class="w-6 h-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
                             </svg>
                         </div>
@@ -215,11 +332,11 @@
                 <div class="stat-card glass-card rounded-2xl p-6">
                     <div class="flex items-center justify-between">
                         <div>
-                            <p class="text-gray-400 text-sm mb-1">Collections</p>
-                            <p class="text-3xl font-bold text-white" x-text="metrics.total_collections || 0"></p>
+                            <p class="text-sm mb-1" :class="darkMode ? 'text-gray-400' : 'text-gray-500'">Collections</p>
+                            <p class="text-3xl font-bold" :class="darkMode ? 'text-white' : 'text-gray-800'" x-text="metrics.total_collections || 0"></p>
                         </div>
                         <div class="w-12 h-12 rounded-xl bg-yellow-500/20 flex items-center justify-center">
-                            <svg class="w-6 h-6 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-6 h-6 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
                             </svg>
                         </div>
@@ -228,13 +345,13 @@
                 <div class="stat-card glass-card rounded-2xl p-6">
                     <div class="flex items-center justify-between">
                         <div>
-                            <p class="text-gray-400 text-sm mb-1">Last Collection</p>
-                            <p class="text-sm font-medium text-white" x-text="lastCollectionStatus"></p>
+                            <p class="text-sm mb-1" :class="darkMode ? 'text-gray-400' : 'text-gray-500'">Last Collection</p>
+                            <p class="text-sm font-medium" :class="darkMode ? 'text-white' : 'text-gray-800'" x-text="lastCollectionStatus"></p>
                         </div>
                         <div class="w-12 h-12 rounded-xl flex items-center justify-center"
                              :class="collectionStatus?.last_collection?.status === 'success' ? 'bg-green-500/20' : 'bg-red-500/20'">
                             <svg class="w-6 h-6"
-                                 :class="collectionStatus?.last_collection?.status === 'success' ? 'text-green-400' : 'text-red-400'"
+                                 :class="collectionStatus?.last_collection?.status === 'success' ? 'text-green-500' : 'text-red-500'"
                                  fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                             </svg>
@@ -247,31 +364,31 @@
             <div x-show="activeTab === 'airports'" x-transition:enter="transition ease-out duration-200"
                  x-transition:enter-start="opacity-0 translate-y-4" x-transition:enter-end="opacity-100 translate-y-0">
                 <div class="glass-card rounded-2xl glow overflow-hidden">
-                    <div class="p-6 border-b border-white/5">
-                        <h2 class="text-xl font-semibold text-white">Monitored Airports</h2>
-                        <p class="text-sm text-gray-400 mt-1">Real-time METAR data from your configured airports</p>
+                    <div class="p-6" :class="darkMode ? 'border-b border-white/5' : 'border-b border-gray-200'">
+                        <h2 class="text-xl font-semibold" :class="darkMode ? 'text-white' : 'text-gray-800'">Monitored Airports</h2>
+                        <p class="text-sm mt-1" :class="darkMode ? 'text-gray-400' : 'text-gray-500'">Real-time METAR data from your configured airports</p>
                     </div>
                     <div class="overflow-x-auto">
                         <table class="w-full">
                             <thead>
-                                <tr class="border-b border-white/5">
-                                    <th class="px-6 py-4 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">ICAO</th>
-                                    <th class="px-6 py-4 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Name</th>
-                                    <th class="px-6 py-4 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Latest METAR</th>
-                                    <th class="px-6 py-4 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Category</th>
-                                    <th class="px-6 py-4 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Time</th>
-                                    <th class="px-6 py-4 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Actions</th>
+                                <tr :class="darkMode ? 'border-b border-white/5' : 'border-b border-gray-200'">
+                                    <th class="px-6 py-4 text-left text-xs font-medium uppercase tracking-wider" :class="darkMode ? 'text-gray-400' : 'text-gray-500'">ICAO</th>
+                                    <th class="px-6 py-4 text-left text-xs font-medium uppercase tracking-wider" :class="darkMode ? 'text-gray-400' : 'text-gray-500'">Name</th>
+                                    <th class="px-6 py-4 text-left text-xs font-medium uppercase tracking-wider" :class="darkMode ? 'text-gray-400' : 'text-gray-500'">Latest METAR</th>
+                                    <th class="px-6 py-4 text-left text-xs font-medium uppercase tracking-wider" :class="darkMode ? 'text-gray-400' : 'text-gray-500'">Category</th>
+                                    <th class="px-6 py-4 text-left text-xs font-medium uppercase tracking-wider" :class="darkMode ? 'text-gray-400' : 'text-gray-500'">Time</th>
+                                    <th class="px-6 py-4 text-left text-xs font-medium uppercase tracking-wider" :class="darkMode ? 'text-gray-400' : 'text-gray-500'">Actions</th>
                                 </tr>
                             </thead>
-                            <tbody class="divide-y divide-white/5">
+                            <tbody :class="darkMode ? 'divide-y divide-white/5' : 'divide-y divide-gray-100'">
                                 <template x-for="airport in airports" :key="airport.icao_code">
                                     <tr class="table-row transition-colors">
                                         <td class="px-6 py-4 whitespace-nowrap">
-                                            <span class="font-mono font-bold text-blue-400" x-text="airport.icao_code"></span>
+                                            <span class="font-mono font-bold text-blue-500" x-text="airport.icao_code"></span>
                                         </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300" x-text="airport.name || '-'"></td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm" :class="darkMode ? 'text-gray-300' : 'text-gray-700'" x-text="airport.name || '-'"></td>
                                         <td class="px-6 py-4">
-                                            <div class="text-xs font-mono text-gray-400 max-w-md truncate"
+                                            <div class="text-xs font-mono max-w-md truncate" :class="darkMode ? 'text-gray-400' : 'text-gray-500'"
                                                  x-text="getLatestMetar(airport.icao_code)?.raw_metar || 'No data'">
                                             </div>
                                         </td>
@@ -281,14 +398,14 @@
                                                   x-text="getLatestMetar(airport.icao_code)?.flight_category || '-'">
                                             </span>
                                         </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-400"
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm" :class="darkMode ? 'text-gray-400' : 'text-gray-500'"
                                             x-text="formatTime(getLatestMetar(airport.icao_code)?.observation_time)">
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm">
                                             <button @click="viewHistory(airport.icao_code)"
-                                                    class="text-blue-400 hover:text-blue-300 mr-4 transition">View</button>
+                                                    class="text-blue-500 hover:text-blue-400 mr-4 transition">View</button>
                                             <button @click="deleteAirport(airport.icao_code)"
-                                                    class="text-red-400 hover:text-red-300 transition">Remove</button>
+                                                    class="text-red-500 hover:text-red-400 transition">Remove</button>
                                         </td>
                                     </tr>
                                 </template>
@@ -296,13 +413,13 @@
                         </table>
                     </div>
                     <div x-show="airports.length === 0" class="p-12 text-center">
-                        <div class="w-16 h-16 rounded-full bg-gray-800 flex items-center justify-center mx-auto mb-4">
-                            <svg class="w-8 h-8 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div class="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4" :class="darkMode ? 'bg-gray-800' : 'bg-gray-100'">
+                            <svg class="w-8 h-8" :class="darkMode ? 'text-gray-600' : 'text-gray-400'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
                             </svg>
                         </div>
-                        <p class="text-gray-400">No airports configured</p>
-                        <p class="text-sm text-gray-500 mt-1">Add some airports to start collecting METAR data</p>
+                        <p :class="darkMode ? 'text-gray-400' : 'text-gray-500'">No airports configured</p>
+                        <p class="text-sm mt-1" :class="darkMode ? 'text-gray-500' : 'text-gray-400'">Add some airports to start collecting METAR data</p>
                     </div>
                 </div>
             </div>
@@ -311,10 +428,10 @@
             <div x-show="activeTab === 'history'" x-transition:enter="transition ease-out duration-200"
                  x-transition:enter-start="opacity-0 translate-y-4" x-transition:enter-end="opacity-100 translate-y-0">
                 <div class="glass-card rounded-2xl glow overflow-hidden">
-                    <div class="p-6 border-b border-white/5 flex items-center justify-between">
+                    <div class="p-6 flex items-center justify-between" :class="darkMode ? 'border-b border-white/5' : 'border-b border-gray-200'">
                         <div>
-                            <h2 class="text-xl font-semibold text-white">METAR History</h2>
-                            <p class="text-sm text-gray-400 mt-1">Historical observations for selected airport</p>
+                            <h2 class="text-xl font-semibold" :class="darkMode ? 'text-white' : 'text-gray-800'">METAR History</h2>
+                            <p class="text-sm mt-1" :class="darkMode ? 'text-gray-400' : 'text-gray-500'">Historical observations for selected airport</p>
                         </div>
                         <select x-model="selectedAirport" @change="loadHistory()"
                                 class="rounded-lg px-4 py-2 text-sm">
@@ -327,27 +444,27 @@
                     <div x-show="selectedAirport && history.length > 0" class="overflow-x-auto">
                         <table class="w-full">
                             <thead>
-                                <tr class="border-b border-white/5">
-                                    <th class="px-6 py-4 text-left text-xs font-medium text-gray-400 uppercase">Time (UTC)</th>
-                                    <th class="px-6 py-4 text-left text-xs font-medium text-gray-400 uppercase">Raw METAR</th>
-                                    <th class="px-6 py-4 text-left text-xs font-medium text-gray-400 uppercase">Wind</th>
-                                    <th class="px-6 py-4 text-left text-xs font-medium text-gray-400 uppercase">Visibility</th>
-                                    <th class="px-6 py-4 text-left text-xs font-medium text-gray-400 uppercase">Ceiling</th>
-                                    <th class="px-6 py-4 text-left text-xs font-medium text-gray-400 uppercase">Temp</th>
-                                    <th class="px-6 py-4 text-left text-xs font-medium text-gray-400 uppercase">Category</th>
+                                <tr :class="darkMode ? 'border-b border-white/5' : 'border-b border-gray-200'">
+                                    <th class="px-6 py-4 text-left text-xs font-medium uppercase" :class="darkMode ? 'text-gray-400' : 'text-gray-500'">Time (UTC)</th>
+                                    <th class="px-6 py-4 text-left text-xs font-medium uppercase" :class="darkMode ? 'text-gray-400' : 'text-gray-500'">Raw METAR</th>
+                                    <th class="px-6 py-4 text-left text-xs font-medium uppercase" :class="darkMode ? 'text-gray-400' : 'text-gray-500'">Wind</th>
+                                    <th class="px-6 py-4 text-left text-xs font-medium uppercase" :class="darkMode ? 'text-gray-400' : 'text-gray-500'">Visibility</th>
+                                    <th class="px-6 py-4 text-left text-xs font-medium uppercase" :class="darkMode ? 'text-gray-400' : 'text-gray-500'">Ceiling</th>
+                                    <th class="px-6 py-4 text-left text-xs font-medium uppercase" :class="darkMode ? 'text-gray-400' : 'text-gray-500'">Temp</th>
+                                    <th class="px-6 py-4 text-left text-xs font-medium uppercase" :class="darkMode ? 'text-gray-400' : 'text-gray-500'">Category</th>
                                 </tr>
                             </thead>
-                            <tbody class="divide-y divide-white/5">
+                            <tbody :class="darkMode ? 'divide-y divide-white/5' : 'divide-y divide-gray-100'">
                                 <template x-for="obs in history" :key="obs.id">
                                     <tr class="table-row transition-colors">
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300" x-text="formatTime(obs.observation_time)"></td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm" :class="darkMode ? 'text-gray-300' : 'text-gray-700'" x-text="formatTime(obs.observation_time)"></td>
                                         <td class="px-6 py-4">
-                                            <div class="text-xs font-mono text-gray-400 max-w-lg" x-text="obs.raw_metar"></div>
+                                            <div class="text-xs font-mono max-w-lg" :class="darkMode ? 'text-gray-400' : 'text-gray-500'" x-text="obs.raw_metar"></div>
                                         </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300" x-text="formatWind(obs)"></td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300" x-text="formatVisibility(obs)"></td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300" x-text="obs.ceiling_ft ? obs.ceiling_ft + ' ft' : 'CLR'"></td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300" x-text="obs.temperature_c !== null ? obs.temperature_c + '°C' : '-'"></td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm" :class="darkMode ? 'text-gray-300' : 'text-gray-700'" x-text="formatWind(obs)"></td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm" :class="darkMode ? 'text-gray-300' : 'text-gray-700'" x-text="formatVisibility(obs)"></td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm" :class="darkMode ? 'text-gray-300' : 'text-gray-700'" x-text="obs.ceiling_ft ? obs.ceiling_ft + ' ft' : 'CLR'"></td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm" :class="darkMode ? 'text-gray-300' : 'text-gray-700'" x-text="obs.temperature_c !== null ? obs.temperature_c + '°C' : '-'"></td>
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             <span class="px-3 py-1 text-xs font-semibold rounded-full"
                                                   :class="getFlightCategoryClass(obs.flight_category)"
@@ -360,28 +477,30 @@
                         </table>
                     </div>
                     <div x-show="selectedAirport && history.length === 0" class="p-12 text-center">
-                        <p class="text-gray-400">No history available for this airport</p>
+                        <p :class="darkMode ? 'text-gray-400' : 'text-gray-500'">No history available for this airport</p>
                     </div>
                     <div x-show="!selectedAirport" class="p-12 text-center">
-                        <div class="w-16 h-16 rounded-full bg-gray-800 flex items-center justify-center mx-auto mb-4">
-                            <svg class="w-8 h-8 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div class="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4" :class="darkMode ? 'bg-gray-800' : 'bg-gray-100'">
+                            <svg class="w-8 h-8" :class="darkMode ? 'text-gray-600' : 'text-gray-400'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
                             </svg>
                         </div>
-                        <p class="text-gray-400">Select an airport to view its history</p>
+                        <p :class="darkMode ? 'text-gray-400' : 'text-gray-500'">Select an airport to view its history</p>
                     </div>
                     <!-- Pagination -->
-                    <div x-show="historyTotal > historyPerPage" class="px-6 py-4 border-t border-white/5 flex items-center justify-between">
-                        <div class="text-sm text-gray-400">
+                    <div x-show="historyTotal > historyPerPage" class="px-6 py-4 flex items-center justify-between" :class="darkMode ? 'border-t border-white/5' : 'border-t border-gray-200'">
+                        <div class="text-sm" :class="darkMode ? 'text-gray-400' : 'text-gray-500'">
                             Showing <span x-text="((historyPage - 1) * historyPerPage) + 1"></span> to
                             <span x-text="Math.min(historyPage * historyPerPage, historyTotal)"></span> of
                             <span x-text="historyTotal"></span> results
                         </div>
                         <div class="flex space-x-2">
                             <button @click="historyPage--; loadHistory()" :disabled="historyPage <= 1"
-                                    class="px-4 py-2 rounded-lg text-sm transition disabled:opacity-50 bg-white/5 hover:bg-white/10">Previous</button>
+                                    class="px-4 py-2 rounded-lg text-sm transition disabled:opacity-50"
+                                    :class="darkMode ? 'bg-white/5 hover:bg-white/10' : 'bg-gray-100 hover:bg-gray-200'">Previous</button>
                             <button @click="historyPage++; loadHistory()" :disabled="historyPage >= Math.ceil(historyTotal / historyPerPage)"
-                                    class="px-4 py-2 rounded-lg text-sm transition disabled:opacity-50 bg-white/5 hover:bg-white/10">Next</button>
+                                    class="px-4 py-2 rounded-lg text-sm transition disabled:opacity-50"
+                                    :class="darkMode ? 'bg-white/5 hover:bg-white/10' : 'bg-gray-100 hover:bg-gray-200'">Next</button>
                         </div>
                     </div>
                 </div>
@@ -391,38 +510,38 @@
             <div x-show="activeTab === 'add'" x-transition:enter="transition ease-out duration-200"
                  x-transition:enter-start="opacity-0 translate-y-4" x-transition:enter-end="opacity-100 translate-y-0">
                 <div class="glass-card rounded-2xl glow p-8 max-w-xl">
-                    <h2 class="text-xl font-semibold text-white mb-2">Add New Airport</h2>
-                    <p class="text-sm text-gray-400 mb-6">Enter the ICAO code and optional details</p>
+                    <h2 class="text-xl font-semibold mb-2" :class="darkMode ? 'text-white' : 'text-gray-800'">Add New Airport</h2>
+                    <p class="text-sm mb-6" :class="darkMode ? 'text-gray-400' : 'text-gray-500'">Enter the ICAO code and optional details</p>
                     <form @submit.prevent="addAirport()" class="space-y-6">
                         <div>
-                            <label class="block text-sm font-medium text-gray-300 mb-2">ICAO Code *</label>
+                            <label class="block text-sm font-medium mb-2" :class="darkMode ? 'text-gray-300' : 'text-gray-600'">ICAO Code *</label>
                             <input type="text" x-model="newAirport.icao_code"
                                    maxlength="4" placeholder="LFPG"
                                    class="w-full rounded-lg px-4 py-3 uppercase"
                                    required>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-300 mb-2">Airport Name</label>
+                            <label class="block text-sm font-medium mb-2" :class="darkMode ? 'text-gray-300' : 'text-gray-600'">Airport Name</label>
                             <input type="text" x-model="newAirport.name"
                                    placeholder="Paris Charles de Gaulle"
                                    class="w-full rounded-lg px-4 py-3">
                         </div>
                         <div class="grid grid-cols-2 gap-4">
                             <div>
-                                <label class="block text-sm font-medium text-gray-300 mb-2">Latitude</label>
+                                <label class="block text-sm font-medium mb-2" :class="darkMode ? 'text-gray-300' : 'text-gray-600'">Latitude</label>
                                 <input type="number" x-model="newAirport.latitude" step="0.000001"
                                        placeholder="49.0097"
                                        class="w-full rounded-lg px-4 py-3">
                             </div>
                             <div>
-                                <label class="block text-sm font-medium text-gray-300 mb-2">Longitude</label>
+                                <label class="block text-sm font-medium mb-2" :class="darkMode ? 'text-gray-300' : 'text-gray-600'">Longitude</label>
                                 <input type="number" x-model="newAirport.longitude" step="0.000001"
                                        placeholder="2.5478"
                                        class="w-full rounded-lg px-4 py-3">
                             </div>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-300 mb-2">Elevation (ft)</label>
+                            <label class="block text-sm font-medium mb-2" :class="darkMode ? 'text-gray-300' : 'text-gray-600'">Elevation (ft)</label>
                             <input type="number" x-model="newAirport.elevation_ft"
                                    placeholder="392"
                                    class="w-full rounded-lg px-4 py-3">
@@ -439,11 +558,11 @@
             <div x-show="activeTab === 'export'" x-transition:enter="transition ease-out duration-200"
                  x-transition:enter-start="opacity-0 translate-y-4" x-transition:enter-end="opacity-100 translate-y-0">
                 <div class="glass-card rounded-2xl glow p-8 max-w-xl">
-                    <h2 class="text-xl font-semibold text-white mb-2">Export Data</h2>
-                    <p class="text-sm text-gray-400 mb-6">Download METAR observations in CSV or JSON format</p>
+                    <h2 class="text-xl font-semibold mb-2" :class="darkMode ? 'text-white' : 'text-gray-800'">Export Data</h2>
+                    <p class="text-sm mb-6" :class="darkMode ? 'text-gray-400' : 'text-gray-500'">Download METAR observations in CSV or JSON format</p>
                     <form @submit.prevent="exportData()" class="space-y-6">
                         <div>
-                            <label class="block text-sm font-medium text-gray-300 mb-2">Airport (optional)</label>
+                            <label class="block text-sm font-medium mb-2" :class="darkMode ? 'text-gray-300' : 'text-gray-600'">Airport (optional)</label>
                             <select x-model="exportParams.icao" class="w-full rounded-lg px-4 py-3">
                                 <option value="">All Airports</option>
                                 <template x-for="airport in airports" :key="airport.icao_code">
@@ -453,28 +572,28 @@
                         </div>
                         <div class="grid grid-cols-2 gap-4">
                             <div>
-                                <label class="block text-sm font-medium text-gray-300 mb-2">Start Date</label>
+                                <label class="block text-sm font-medium mb-2" :class="darkMode ? 'text-gray-300' : 'text-gray-600'">Start Date</label>
                                 <input type="date" x-model="exportParams.start_date"
                                        class="w-full rounded-lg px-4 py-3">
                             </div>
                             <div>
-                                <label class="block text-sm font-medium text-gray-300 mb-2">End Date</label>
+                                <label class="block text-sm font-medium mb-2" :class="darkMode ? 'text-gray-300' : 'text-gray-600'">End Date</label>
                                 <input type="date" x-model="exportParams.end_date"
                                        class="w-full rounded-lg px-4 py-3">
                             </div>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-300 mb-3">Format</label>
+                            <label class="block text-sm font-medium mb-3" :class="darkMode ? 'text-gray-300' : 'text-gray-600'">Format</label>
                             <div class="flex space-x-4">
                                 <label class="flex items-center space-x-2 cursor-pointer">
                                     <input type="radio" x-model="exportParams.format" value="csv"
                                            class="w-4 h-4 text-blue-500">
-                                    <span class="text-gray-300">CSV</span>
+                                    <span :class="darkMode ? 'text-gray-300' : 'text-gray-600'">CSV</span>
                                 </label>
                                 <label class="flex items-center space-x-2 cursor-pointer">
                                     <input type="radio" x-model="exportParams.format" value="json"
                                            class="w-4 h-4 text-blue-500">
-                                    <span class="text-gray-300">JSON</span>
+                                    <span :class="darkMode ? 'text-gray-300' : 'text-gray-600'">JSON</span>
                                 </label>
                             </div>
                         </div>
