@@ -29,6 +29,8 @@ build-no-cache: ## Construire sans cache
 	@echo "${BLUE}Construction des images (sans cache)...${NC}"
 	$(COMPOSE) build --no-cache
 
+build-up: build up ## Construire et démarrer
+
 up: ## Démarrer tous les services
 	@echo "${GREEN}Démarrage des services...${NC}"
 	$(COMPOSE) up -d
